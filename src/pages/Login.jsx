@@ -1,6 +1,7 @@
 import axios from 'axios';
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { UserDataContext } from '../context/users.context';
 
 const Login = () => {
   const [formData, setFormData] = useState({
@@ -8,6 +9,7 @@ const Login = () => {
     password: '',
     rememberMe: false
   });
+  const [user, setUser] = useContext(UserDataContext);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
@@ -42,13 +44,15 @@ const Login = () => {
       
       if (res.data.success) {
         localStorage.setItem('token', res.data.token);
+        localStorage.setItem('userData', JSON.stringify(res.data.user));
+        console.log(res.data.user);
+        setUser(res.data.user);
         navigate('/');
       } else {
         setError('Login failed. Please check your credentials.');
       }
     } catch (err) {
-      console.error("Error in login:", err);
-      setError(err.response?.data?.error || 'An error occurred during login. Please try again.');
+      setError(err.response?.data?.message || 'An error occurred during login.');
     } finally {
       setLoading(false);
     }

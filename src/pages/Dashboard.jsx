@@ -1,8 +1,13 @@
-import React from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { Routes, Route, Link } from 'react-router-dom';
 import Navbar from '../components/Navbar';
+import { UserDataContext } from '../context/users.context';
 
 const DashboardHome = () => {
+
+  // const [user, setUser] = useContext(UserDataContext);
+  const [userData, setUserData] = useState(null);
+
   const user = {
     name: 'John',
     tokens: 2500,
@@ -18,6 +23,13 @@ const DashboardHome = () => {
     }
   };
 
+  useEffect(() => {
+    const storedUserData = localStorage.getItem('userData');
+    if (storedUserData) {
+      setUserData(JSON.parse(storedUserData));
+    }
+  }, []);
+
   const topLearners = [
     { name: 'Sarah Johnson', tokens: 5240 },
     { name: 'Mike Chen', tokens: 4890 }
@@ -28,11 +40,11 @@ const DashboardHome = () => {
       {/* Welcome Section */}
       <div className="bg-white rounded-lg shadow-sm p-6 mb-8 flex justify-between items-center">
         <div>
-          <h1 className="text-2xl font-semibold">Welcome back, {user.name}! 👋</h1>
+          <h1 className="text-2xl font-semibold">Welcome back, {userData?.fullname?.firstname}! 👋</h1>
           <p className="text-gray-600">Ready to continue your learning journey?</p>
         </div>
         <div className="bg-blue-50 px-4 py-2 rounded-full">
-          <span className="text-blue-600">💰 {user.tokens} Tokens</span>
+          <span className="text-blue-600">💰 {userData?.tokens} Tokens</span>
         </div>
       </div>
 

@@ -5,6 +5,7 @@ import Dashboard from './pages/Dashboard'
 import Navbar from './components/Navbar'
 import Register from './pages/Register'
 import UserProtectedWrapper from './pages/UserProtectedWrapper'
+import Profile from './pages/Profile'
 
 // Placeholder components for routes that haven't been created yet
 const PlaylistsPage = () => (
@@ -96,7 +97,7 @@ const App = () => {
             <Route path="/playlists" element={<UserProtectedWrapper><PlaylistsPage /></UserProtectedWrapper>} />
             <Route path="/rewards" element={<UserProtectedWrapper><RewardsPage /></UserProtectedWrapper>} />
             <Route path="/leaderboard" element={<UserProtectedWrapper><LeaderboardPage /></UserProtectedWrapper>} />
-            <Route path="/profile" element={<UserProtectedWrapper><ProfilePage /></UserProtectedWrapper>} />
+            <Route path="/profile" element={<UserProtectedWrapper><Profile /></UserProtectedWrapper>} />
             <Route path="*" element={<Navigate to="/login" replace />} />
           </Routes>
         </div>
