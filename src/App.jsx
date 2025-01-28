@@ -1,17 +1,18 @@
-import React from 'react'
 import { Routes, Route } from 'react-router-dom'
 import Login from './pages/Login'
-// import Register from './compo/Register'
+import Register from './pages/Register'
+import UserProtectedWrapper from './pages/UserProtectedWrapper'
 
-const App = () => {
+
+function App() {
   return (
-    <>
+    <div className="flex">
       <Routes>
-        <Route path="/" element={<h1>Home</h1>} />
+        <Route path='/' element = { <UserProtectedWrapper><h1>home</h1></UserProtectedWrapper> } />
         <Route path="/login" element={<Login />} />
-        {/* <Route path="/register" element={<Register />} /> */}
+        <Route path="/register" element={<Register />} />
       </Routes>
-    </>
+    </div>
   )
 }
 
