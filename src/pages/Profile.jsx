@@ -20,12 +20,12 @@ const Profile = () => {
     {
       title: 'Quiz Master',
       description: 'Completed 30+ quizzes',
-      icon: '⭐',
+      icon: ' ',
     },
     {
       title: 'Early Bird',
       description: '15-day learning streak',
-      icon: '🌅',
+      icon: ' ',
     },
   ];
 
@@ -46,7 +46,7 @@ const Profile = () => {
 
   return (
     <div className="min-h-screen bg-gray-50 p-8">
-      <div className="max-w-4xl mx-auto space-y-6">
+      <div className="max-w-7xl mx-auto space-y-6">
         {/* Profile Header */}
         <div className="bg-white rounded-lg p-6 shadow">
           <div className="flex items-center space-x-6">
@@ -84,9 +84,9 @@ const Profile = () => {
           </div>
         </div>
 
-        <div className="grid grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 gap-6">
           {/* Achievements Section */}
-          <div className="col-span-2 bg-white rounded-lg p-6 shadow">
+          <div className="bg-white rounded-lg p-6 shadow">
             <h3 className="text-xl font-semibold mb-4">Achievements</h3>
             <div className="grid grid-cols-2 gap-4">
               {achievements.map((achievement, index) => (
@@ -148,39 +148,39 @@ const Profile = () => {
               </div>
             </div>
           </div>
-        </div>
 
-        {/* Token History Section */}
-        <div className="bg-white rounded-lg p-6 shadow">
-          <h3 className="text-xl font-semibold mb-4">Token History</h3>
-          <div className="space-y-4">
-            {tokenHistory.map((item, index) => (
-              <div
-                key={index}
-                className="flex items-center justify-between border-b pb-4 last:border-0"
-              >
-                <div className="flex items-center space-x-4">
-                  <div
-                    className={`w-8 h-8 rounded-full flex items-center justify-center ${
-                      item.isPositive ? 'bg-green-100' : 'bg-red-100'
+          {/* Token History Section */}
+          <div className="bg-white rounded-lg p-6 shadow">
+            <h3 className="text-xl font-semibold mb-4">Token History</h3>
+            <div className="space-y-4">
+              {tokenHistory.map((item, index) => (
+                <div
+                  key={index}
+                  className="flex items-center justify-between border-b pb-4 last:border-0"
+                >
+                  <div className="flex items-center space-x-4">
+                    <div
+                      className={`w-8 h-8 rounded-full flex items-center justify-center ${
+                        item.isPositive ? 'bg-green-100' : 'bg-red-100'
+                      }`}
+                    >
+                      {item.isPositive ? '+' : '-'}
+                    </div>
+                    <div>
+                      <h4 className="font-medium">{item.type}</h4>
+                      <p className="text-sm text-gray-600">{item.description}</p>
+                    </div>
+                  </div>
+                  <span
+                    className={`font-medium ${
+                      item.isPositive ? 'text-green-600' : 'text-red-600'
                     }`}
                   >
-                    {item.isPositive ? '+' : '-'}
-                  </div>
-                  <div>
-                    <h4 className="font-medium">{item.type}</h4>
-                    <p className="text-sm text-gray-600">{item.description}</p>
-                  </div>
+                    {item.tokens}
+                  </span>
                 </div>
-                <span
-                  className={`font-medium ${
-                    item.isPositive ? 'text-green-600' : 'text-red-600'
-                  }`}
-                >
-                  {item.tokens}
-                </span>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
         </div>
       </div>
