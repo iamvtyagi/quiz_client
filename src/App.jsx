@@ -5,29 +5,11 @@ import Dashboard from './pages/Dashboard'
 import Navbar from './components/Navbar'
 import Register from './pages/Register'
 import UserProtectedWrapper from './pages/UserProtectedWrapper'
+import Playlists from './pages/Playlists'
+import Rewards from './pages/Rewards'
+import Leaderboard from './pages/Leaderboard'
 
 // Placeholder components for routes that haven't been created yet
-const PlaylistsPage = () => (
-  <div className="p-8">
-    <h1 className="text-2xl font-bold text-gray-800 mb-4">Playlists</h1>
-    <p className="text-gray-600">Your learning playlists will appear here.</p>
-  </div>
-);
-
-const RewardsPage = () => (
-  <div className="p-8">
-    <h1 className="text-2xl font-bold text-gray-800 mb-4">Rewards</h1>
-    <p className="text-gray-600">Track your achievements and rewards here.</p>
-  </div>
-);
-
-const LeaderboardPage = () => (
-  <div className="p-8">
-    <h1 className="text-2xl font-bold text-gray-800 mb-4">Leaderboard</h1>
-    <p className="text-gray-600">See how you rank among other learners.</p>
-  </div>
-);
-
 const ProfilePage = () => (
   <div className="p-8">
     <h1 className="text-2xl font-bold text-gray-800 mb-4">Profile</h1>
@@ -93,9 +75,9 @@ const App = () => {
           <Routes>
             <Route path="/" element={<Navigate to="/dashboard" replace />} />
             <Route path="/dashboard/*" element={<UserProtectedWrapper><Dashboard /></UserProtectedWrapper>} />
-            <Route path="/playlists" element={<UserProtectedWrapper><PlaylistsPage /></UserProtectedWrapper>} />
-            <Route path="/rewards" element={<UserProtectedWrapper><RewardsPage /></UserProtectedWrapper>} />
-            <Route path="/leaderboard" element={<UserProtectedWrapper><LeaderboardPage /></UserProtectedWrapper>} />
+            <Route path="/playlists" element={<UserProtectedWrapper><Playlists /></UserProtectedWrapper>} />
+            <Route path="/rewards" element={<UserProtectedWrapper><Rewards /></UserProtectedWrapper>} />
+            <Route path="/leaderboard" element={<UserProtectedWrapper><Leaderboard /></UserProtectedWrapper>} />
             <Route path="/profile" element={<UserProtectedWrapper><ProfilePage /></UserProtectedWrapper>} />
             <Route path="*" element={<Navigate to="/login" replace />} />
           </Routes>
