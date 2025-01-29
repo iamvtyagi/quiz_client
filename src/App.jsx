@@ -11,6 +11,7 @@ import Rewards from './pages/Rewards'
 import Leaderboard from './pages/Leaderboard'
 import LearningPage from './pages/LearningPage'
 import PlaylistVideos from './pages/PlaylistVideos'
+import QuizComponent from './components/Quiz'
 
 // Placeholder components for routes that haven't been created yet
 const ProfilePage = () => (
@@ -87,6 +88,7 @@ const App = () => {
             <Route path="/profile" element={<UserProtectedWrapper><Profile /></UserProtectedWrapper>} />
             <Route path="/playlists" element={<UserProtectedWrapper><Playlists /></UserProtectedWrapper>} />
             <Route path="/playlist/:playlistId" element={<UserProtectedWrapper><PlaylistVideos /></UserProtectedWrapper>} />
+            <Route path="/quiz/:playlistId" element={<UserProtectedWrapper><QuizComponent /></UserProtectedWrapper>} />
             <Route path="/rewards" element={<UserProtectedWrapper><Rewards /></UserProtectedWrapper>} />
             <Route path="/leaderboard" element={<UserProtectedWrapper><Leaderboard /></UserProtectedWrapper>} />
             <Route path="*" element={<Navigate to="/login" replace />} />
