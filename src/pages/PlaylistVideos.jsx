@@ -163,7 +163,7 @@ const PlaylistVideos = () => {
                     {selectedVideo.title}
                   </h2>
                   <button
-                    onClick={() => navigate(`/quiz/${playlistId}`)}
+                    onClick={() => navigate(`/quiz/${selectedVideo.id}`)}
                     className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors flex items-center gap-2"
                   >
                     <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">

@@ -1,27 +1,40 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Quiz from 'react-quiz-component';
 import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 
-const QuizComponent = ({ videoId, transcript }) => {
+const QuizComponent = () => {
+  const { videoId } = useParams();
   const navigate = useNavigate();
   const [quiz, setQuiz] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+
+  useEffect(() => {
+    if (videoId) {
+      generateQuiz();
+    }
+  }, [videoId]);
 
   const generateQuiz = async () => {
     try {
       setLoading(true);
       setError(null);
       
-      const response = await axios.post(`${import.meta.env.VITE_API_URL}/api/quiz`, {
-        transcript
-      });
+      console.log('Generating quiz for video:', videoId);
+      const response = await axios.post(
+        `${import.meta.env.VITE_API_URL}/api/quiz/generate`,
+        { videoId },
+        { 
+          withCredentials: true,
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        }
+      );
       
-      // Parse the quiz JSON from the response
-      console.log('Raw quiz data:', response.data.quiz);
-      const quizData = JSON.parse(response.data.quiz);
-      console.log('Parsed quiz data:', quizData);
+      console.log('Quiz response:', response.data);
+      const quizData = response.data;
       
       // Transform the quiz data to match react-quiz-component format
       const formattedQuiz = {
@@ -33,10 +46,9 @@ const QuizComponent = ({ videoId, transcript }) => {
           questionType: "text",
           answerSelectionType: "single",
           answers: q.options,
-          correctAnswer: q.options.indexOf(q.correctAnswer) + 1, // Convert to 1-based index
-          messageForCorrectAnswer: "Correct! " + q.explanation,
-          messageForIncorrectAnswer: "Incorrect. " + q.explanation,
-          explanation: q.explanation,
+          correctAnswer: q.correctAnswer + 1, // Convert 0-based to 1-based index
+          messageForCorrectAnswer: "Correct!",
+          messageForIncorrectAnswer: "Incorrect. Try again!",
           point: 1
         }))
       };
@@ -45,8 +57,13 @@ const QuizComponent = ({ videoId, transcript }) => {
       setQuiz(formattedQuiz);
       
     } catch (error) {
-      console.error('Error generating quiz:', error);
-      setError(error.response?.data?.error || error.message || 'Failed to generate quiz');
+      console.error('Error generating quiz:', error.response || error);
+      setError(
+        error.response?.data?.error || 
+        error.response?.data?.message || 
+        error.message || 
+        'Failed to generate quiz'
+      );
     } finally {
       setLoading(false);
     }
@@ -74,19 +91,27 @@ const QuizComponent = ({ videoId, transcript }) => {
         ) : (
           <p className="text-red-600 font-semibold">Keep learning! Watch the video again to better understand the content!</p>
         )}
-        <button
-          onClick={() => navigate(-1)}
-          className="mt-6 bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700 transition-colors"
-        >
-          Back to Video
-        </button>
+        <div className="mt-6 space-x-4">
+          <button
+            onClick={generateQuiz}
+            className="bg-green-600 text-white px-6 py-2 rounded-md hover:bg-green-700 transition-colors"
+          >
+            Try Again
+          </button>
+          <button
+            onClick={() => navigate(-1)}
+            className="bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700 transition-colors"
+          >
+            Back to Video
+          </button>
+        </div>
       </div>
     );
   };
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center p-8">
+      <div className="flex items-center justify-center min-h-[400px]">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
         <p className="ml-3 text-gray-600">Generating quiz questions...</p>
       </div>
@@ -95,7 +120,7 @@ const QuizComponent = ({ videoId, transcript }) => {
 
   if (error) {
     return (
-      <div className="text-center p-8">
+      <div className="text-center min-h-[400px] flex flex-col items-center justify-center">
         <p className="text-red-500 mb-4">{error}</p>
         <button
           onClick={generateQuiz}
@@ -109,7 +134,7 @@ const QuizComponent = ({ videoId, transcript }) => {
 
   if (!quiz) {
     return (
-      <div className="text-center p-8">
+      <div className="text-center min-h-[400px] flex flex-col items-center justify-center">
         <button
           onClick={generateQuiz}
           className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors"
@@ -121,7 +146,7 @@ const QuizComponent = ({ videoId, transcript }) => {
   }
 
   return (
-    <div className="max-w-4xl mx-auto bg-white rounded-lg shadow-sm p-6">
+    <div className="max-w-4xl mx-auto p-6">
       <Quiz
         quiz={quiz}
         shuffle={true}
