@@ -9,6 +9,7 @@ import Profile from './pages/Profile'
 import Playlists from './pages/Playlists'
 import Rewards from './pages/Rewards'
 import Leaderboard from './pages/Leaderboard'
+import LearningPage from './pages/LearningPage'
 
 // Placeholder components for routes that haven't been created yet
 const ProfilePage = () => (
@@ -51,6 +52,11 @@ const App = () => {
               </Link>
             </li>
             <li>
+              <Link to="/learn" className="flex items-center px-4 py-2 text-gray-700 hover:bg-blue-50 hover:text-blue-600">
+                Learn
+              </Link>
+            </li>
+            <li>
               <Link to="/rewards" className="flex items-center px-4 py-2 text-gray-700 hover:bg-blue-50 hover:text-blue-600">
                 Rewards
               </Link>
@@ -76,14 +82,11 @@ const App = () => {
           <Routes>
             <Route path="/" element={<Navigate to="/dashboard" replace />} />
             <Route path="/dashboard/*" element={<UserProtectedWrapper><Dashboard /></UserProtectedWrapper>} />
-            {/* <Route path="/playlists" element={<UserProtectedWrapper><PlaylistsPage /></UserProtectedWrapper>} /> */}
-            {/* <Route path="/rewards" element={<UserProtectedWrapper><RewardsPage /></UserProtectedWrapper>} /> */}
-            {/* <Route path="/leaderboard" element={<UserProtectedWrapper><LeaderboardPage /></UserProtectedWrapper>} /> */}
+            <Route path="/learn" element={<UserProtectedWrapper><LearningPage /></UserProtectedWrapper>} />
             <Route path="/profile" element={<UserProtectedWrapper><Profile /></UserProtectedWrapper>} />
             <Route path="/playlists" element={<UserProtectedWrapper><Playlists /></UserProtectedWrapper>} />
             <Route path="/rewards" element={<UserProtectedWrapper><Rewards /></UserProtectedWrapper>} />
             <Route path="/leaderboard" element={<UserProtectedWrapper><Leaderboard /></UserProtectedWrapper>} />
-            <Route path="/profile" element={<UserProtectedWrapper><ProfilePage /></UserProtectedWrapper>} />
             <Route path="*" element={<Navigate to="/login" replace />} />
           </Routes>
         </div>
