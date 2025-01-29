@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { FiSearch } from 'react-icons/fi';
 import { IoChevronDownOutline } from 'react-icons/io5';
 import axios from 'axios';
@@ -68,31 +68,42 @@ const Playlists = () => {
   const [error, setError] = useState('');
   
   const categories = ['All', 'Technology', 'Science', 'Business', 'Design'];
-  
-  // Your existing playlists
-  const savedPlaylists = [
-    {
-      title: 'JavaScript Fundamentals',
-      category: 'Technology',
-      videoCount: 10,
-      progress: { completed: 3, total: 10 },
-      status: 'in-progress'
-    },
-    {
-      title: 'React Basics',
-      category: 'Technology',
-      videoCount: 8,
-      progress: { completed: 0, total: 8 },
-      status: 'not-started'
-    },
-    {
-      title: 'Python for Beginners',
-      category: 'Technology',
-      videoCount: 12,
-      progress: { completed: 6, total: 12 },
-      status: 'in-progress'
+
+  // Function to fetch playlists
+  const fetchPlaylists = async (query) => {
+    setLoading(true);
+    setError('');
+    
+    try {
+      const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/playlist-videos`, {
+        params: { query },
+        withCredentials: true
+      });
+      
+      if (response.data.playlists) {
+        const formattedResults = response.data.playlists.map(playlist => ({
+          id: playlist.id.playlistId,
+          title: playlist.snippet.title,
+          description: playlist.snippet.description,
+          thumbnail: playlist.snippet.thumbnails.high?.url || playlist.snippet.thumbnails.default?.url,
+          videoCount: 'N/A',
+          category: 'Technology',
+          videos: []
+        }));
+        setSearchResults(formattedResults);
+      }
+    } catch (err) {
+      console.error('Search error:', err);
+      setError(err.response?.data?.error || err.message || 'Failed to fetch playlists');
+    } finally {
+      setLoading(false);
     }
-  ];
+  };
+
+  // Fetch React playlists on component mount
+  useEffect(() => {
+    fetchPlaylists('react tutorial playlist');
+  }, []);
 
   const handleSearch = async (e) => {
     e.preventDefault();
@@ -104,7 +115,6 @@ const Playlists = () => {
     
     try {
       let params = {};
-      console.log('Search query:', searchQuery); // Debug log
       
       // Check if input is a URL
       if (searchQuery.includes('youtube.com')) {
@@ -113,7 +123,6 @@ const Playlists = () => {
           const playlistId = url.searchParams.get('list');
           if (playlistId) {
             params.playlistId = playlistId;
-            console.log('Extracted playlist ID from URL:', playlistId); // Debug log
           } else {
             throw new Error('Invalid YouTube playlist URL');
           }
@@ -121,24 +130,19 @@ const Playlists = () => {
           throw new Error('Invalid YouTube URL');
         }
       } 
-      // Check if input looks like a playlist ID (starts with PL, UU, etc.)
+      // Check if input looks like a playlist ID
       else if (/^(PL|UU|LL|FL|RD|OL)[a-zA-Z0-9_-]{16,}$/.test(searchQuery)) {
         params.playlistId = searchQuery;
-        console.log('Using direct playlist ID:', searchQuery); // Debug log
       }
       // Otherwise, treat as search query
       else {
         params.query = searchQuery;
-        console.log('Using search query:', searchQuery); // Debug log
       }
 
-      console.log('Making API request with params:', params); // Debug log
       const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/playlist-videos`, {
         params,
         withCredentials: true
       });
-      
-      console.log('API response:', response.data); // Debug log
 
       if (params.playlistId && response.data) {
         // Single playlist response
@@ -149,7 +153,7 @@ const Playlists = () => {
           thumbnail: response.data.thumbnail,
           videoCount: response.data.videoCount,
           videos: response.data.videos,
-          category: 'YouTube Playlist'
+          category: 'Technology'
         }]);
       } else if (response.data.playlists) {
         // Search results
@@ -158,18 +162,15 @@ const Playlists = () => {
           title: playlist.snippet.title,
           description: playlist.snippet.description,
           thumbnail: playlist.snippet.thumbnails.high?.url || playlist.snippet.thumbnails.default?.url,
-          videoCount: 'N/A', // Playlist search doesn't return video count
-          category: 'YouTube Playlist'
+          videoCount: 'N/A',
+          category: 'Technology'
         })));
-      } else {
-        throw new Error('Invalid response format from server');
       }
 
       if (searchResults.length === 0) {
         setError('No playlists found for your search');
       }
     } catch (err) {
-      console.error('Search error:', err); // Debug log
       setError(err.response?.data?.error || err.message || 'Failed to fetch playlist');
     } finally {
       setLoading(false);
@@ -177,12 +178,11 @@ const Playlists = () => {
   };
 
   const handleStartLearning = (playlist) => {
-    // Store the playlist data in localStorage for the learning page
     localStorage.setItem('currentPlaylist', JSON.stringify(playlist));
     navigate('/learn');
   };
 
-  const displayedPlaylists = searchResults.length > 0 ? searchResults : savedPlaylists;
+  const displayedPlaylists = searchResults.length > 0 ? searchResults : [];
 
   return (
     <div className="max-w-7xl mx-auto px-4 py-8">
