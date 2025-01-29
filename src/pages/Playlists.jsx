@@ -178,8 +178,11 @@ const Playlists = () => {
   };
 
   const handleStartLearning = (playlist) => {
-    localStorage.setItem('currentPlaylist', JSON.stringify(playlist));
-    navigate('/learn');
+    if (!playlist.id) {
+      setError('Invalid playlist ID');
+      return;
+    }
+    navigate(`/playlist/${playlist.id}`);
   };
 
   const displayedPlaylists = searchResults.length > 0 ? searchResults : [];

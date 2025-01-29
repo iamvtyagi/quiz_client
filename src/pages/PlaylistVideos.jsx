@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { FiYoutube, FiClock, FiCalendar, FiPlay } from 'react-icons/fi';
 import axios from 'axios';
-import QuizComponent from '../components/Quiz';
 
 const VideoPlayer = ({ videoId }) => {
   if (!videoId) return null;
@@ -22,16 +21,8 @@ const VideoPlayer = ({ videoId }) => {
 };
 
 const VideoCard = ({ video, onVideoSelect, isActive }) => {
-  if (!video?.snippet) return null;
+  if (!video) return null;
   
-  const { title, description, thumbnails, publishedAt } = video.snippet;
-
-  const formattedDate = new Date(publishedAt).toLocaleDateString('en-US', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric'
-  });
-
   return (
     <div 
       className={`bg-white rounded-lg shadow-sm overflow-hidden hover:shadow-md transition-all cursor-pointer
@@ -41,8 +32,8 @@ const VideoCard = ({ video, onVideoSelect, isActive }) => {
       {/* Video Thumbnail */}
       <div className="relative group">
         <img 
-          src={thumbnails?.high?.url || thumbnails?.default?.url}
-          alt={title}
+          src={`https://i.ytimg.com/vi/${video.id}/hqdefault.jpg`}
+          alt={video.title}
           className="w-full aspect-video object-cover group-hover:scale-105 transition-transform duration-300"
         />
         <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 transition-all duration-300" />
@@ -55,16 +46,8 @@ const VideoCard = ({ video, onVideoSelect, isActive }) => {
       
       {/* Content */}
       <div className="p-4">
-        <h4 className="font-semibold text-gray-800 mb-2 line-clamp-2">{title}</h4>
-        <p className="text-sm text-gray-500 mb-3 line-clamp-2">{description}</p>
-        
-        {/* Metadata */}
-        <div className="flex items-center text-xs text-gray-400 gap-4">
-          <div className="flex items-center gap-1">
-            <FiCalendar />
-            <span>{formattedDate}</span>
-          </div>
-        </div>
+        <h4 className="font-semibold text-gray-800 mb-2 line-clamp-2">{video.title}</h4>
+        <p className="text-sm text-gray-500 mb-3 line-clamp-2">{video.description}</p>
       </div>
     </div>
   );
@@ -76,10 +59,7 @@ const PlaylistVideos = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [playlist, setPlaylist] = useState(null);
-  const [videos, setVideos] = useState([]);
   const [selectedVideo, setSelectedVideo] = useState(null);
-  const [loadingTranscript, setLoadingTranscript] = useState(false);
-  const [transcript, setTranscript] = useState('');
 
   useEffect(() => {
     const fetchPlaylistData = async () => {
@@ -88,17 +68,16 @@ const PlaylistVideos = () => {
         setError(null);
         
         const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/playlist-videos`, {
-          params: { playlistId }
+          params: { playlistId },
+          withCredentials: true
         });
         
-        const { playlist: playlistData, items: videoData } = response.data;
-        
-        setPlaylist(playlistData);
-        setVideos(videoData || []);
-        if (videoData?.length > 0) {
-          setSelectedVideo(videoData[0]);
+        if (response.data) {
+          setPlaylist(response.data);
+          if (response.data.videos?.length > 0) {
+            setSelectedVideo(response.data.videos[0]);
+          }
         }
-        
       } catch (error) {
         console.error('Error fetching playlist data:', error);
         setError(error.message);
@@ -112,46 +91,8 @@ const PlaylistVideos = () => {
     }
   }, [playlistId]);
 
-  const handleVideoSelect = async (video) => {
+  const handleVideoSelect = (video) => {
     setSelectedVideo(video);
-    setShowQuiz(false);
-    setTranscript('');
-
-    try {
-      // Fetch transcript when video is selected
-      const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/transcript`, {
-        params: { videoId: video.contentDetails.videoId }
-      });
-      setTranscript(response.data.transcript);
-    } catch (error) {
-      console.error('Error fetching transcript:', error);
-    }
-  };
-
-  const handleQuizClick = async () => {
-    if (!selectedVideo) return;
-
-    setLoadingTranscript(true);
-    try {
-      // Using a sample transcript for now since the actual transcript endpoint is not available
-      const sampleTranscript = `This is a sample transcript for video ${selectedVideo.contentDetails.videoId}.
-        The video covers important topics and concepts related to the subject matter.
-        Key points discussed include:
-        - Introduction to the topic
-        - Main concepts and theories
-        - Practical examples and applications
-        - Summary and conclusions`;
-      
-      // Navigate to quiz page with the transcript
-      navigate(`/quiz/${selectedVideo.contentDetails.videoId}`, {
-        state: { transcript: sampleTranscript }
-      });
-    } catch (error) {
-      console.error('Error:', error);
-      setError('Failed to prepare quiz. Please try again.');
-    } finally {
-      setLoadingTranscript(false);
-    }
   };
 
   if (loading) {
@@ -176,7 +117,7 @@ const PlaylistVideos = () => {
     );
   }
 
-  if (!videos || videos.length === 0) {
+  if (!playlist?.videos || playlist.videos.length === 0) {
     return (
       <div className="max-w-7xl mx-auto px-4 py-8 text-center">
         <p className="text-gray-500 mb-4">No videos found in this playlist.</p>
@@ -196,17 +137,17 @@ const PlaylistVideos = () => {
       <div className="flex items-center justify-between mb-8">
         <div>
           <h1 className="text-2xl font-bold text-gray-800">
-            {playlist?.snippet?.title || 'Learning Playlist'}
+            {playlist.title}
           </h1>
           <p className="text-gray-600 mt-2">
-            {playlist?.snippet?.channelTitle} • {videos.length} videos
+            {playlist.videoCount} videos
           </p>
         </div>
         <button 
           onClick={() => navigate('/playlists')}
           className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors"
         >
-          Back to Search
+          Back to Playlists
         </button>
       </div>
 
@@ -215,31 +156,13 @@ const PlaylistVideos = () => {
         <div className="lg:col-span-2 space-y-6">
           {selectedVideo && (
             <>
-              <VideoPlayer videoId={selectedVideo.contentDetails?.videoId} />
+              <VideoPlayer videoId={selectedVideo.id} />
               <div className="bg-white rounded-lg shadow-sm p-6">
-                <div className="flex justify-between items-center mb-4">
-                  <h2 className="text-xl font-semibold text-gray-800">
-                    {selectedVideo.snippet.title}
-                  </h2>
-                  <button
-                    onClick={handleQuizClick}
-                    disabled={loadingTranscript}
-                    className={`px-4 py-2 rounded-md transition-colors ${
-                      loadingTranscript 
-                        ? 'bg-gray-400 cursor-not-allowed' 
-                        : 'bg-blue-600 hover:bg-blue-700 text-white'
-                    }`}
-                  >
-                    {loadingTranscript ? (
-                      <div className="flex items-center">
-                        <div className="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full mr-2"></div>
-                        Loading...
-                      </div>
-                    ) : 'Take Quiz'}
-                  </button>
-                </div>
+                <h2 className="text-xl font-semibold text-gray-800 mb-4">
+                  {selectedVideo.title}
+                </h2>
                 <p className="text-gray-600">
-                  {selectedVideo.snippet.description}
+                  {selectedVideo.description}
                 </p>
               </div>
             </>
@@ -249,18 +172,18 @@ const PlaylistVideos = () => {
         {/* Playlist Sidebar */}
         <div className="lg:col-span-1">
           <div className="bg-white rounded-lg shadow-sm p-4 mb-4">
-            <h3 className="font-semibold text-gray-800 mb-2">Playlist Videos</h3>
-            <p className="text-sm text-gray-500">{videos.length} videos</p>
+            <h3 className="font-semibold text-gray-800 mb-2">Course Videos</h3>
+            <p className="text-sm text-gray-500">{playlist.videoCount} videos</p>
           </div>
           
           {/* Video List */}
-          <div className="space-y-4 max-h-[600px] overflow-y-auto">
-            {Array.isArray(videos) && videos.map((video, index) => (
+          <div className="space-y-4 max-h-[600px] overflow-y-auto pr-2">
+            {playlist.videos.map((video, index) => (
               <VideoCard
-                key={`${video.contentDetails?.videoId}-${index}`}
+                key={video.id}
                 video={video}
                 onVideoSelect={handleVideoSelect}
-                isActive={selectedVideo?.contentDetails?.videoId === video.contentDetails?.videoId}
+                isActive={selectedVideo?.id === video.id}
               />
             ))}
           </div>
